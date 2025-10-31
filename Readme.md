@@ -38,22 +38,58 @@
 
 1. 将项目部署在任意静态站点（如 Vercel、Netlify 或 Nginx 静态目录）。
 2. 根据实际环境编辑 `config/app-config.json`，配置服务根地址、接口路径、请求方法等信息。
-3. 若需接入真实后端，将配置中的 `mock` 字段改为 `false` 并填写有效的 `baseUrl`。
-4. 在对话区输入问题、上传文件，点击发送即可与智能体交互。
+3. 启动 Streamlit：
 
-## 本地开发
+   ```bash
+   streamlit run streamlit_app.py
+   ```
 
-无需构建工具，只需一个静态文件服务器即可：
+4. 在浏览器中使用侧边栏管理 API 配置、上传附件并与智能体对话。
 
-```bash
-# 在项目根目录启动本地服务（示例使用 Python）
-python3 -m http.server 5173
-# 浏览器访问 http://localhost:5173
-```
+> 默认启用模拟响应模式，可通过侧边栏、配置文件中的 `mock` 字段或环境变量 `AGENT_PORTAL_USE_MOCK` 进行切换。
 
 ## 自定义集成
 
-如需与现有项目整合，可将 `index.html` 嵌入到您的框架或以 `iframe` 引入，并通过修改 `scripts/app.js` 中的 `sendToBackend`、`buildPayload` 等函数定制与后端的交互协议。
+Streamlit 应用本身即可作为嵌入式微前端部署在更大的系统中，亦可在侧边栏追加登录控件、租户选择等企业场景所需模块。
+
+## 本地开发
+
+### 环境变量覆盖
+
+Streamlit 版本支持以下环境变量，可在容器或 Kubernetes 中重写默认配置：
+
+| 环境变量 | 对应字段 | 示例 |
+| --- | --- | --- |
+| `AGENT_PORTAL_BASE_URL` | API 根地址 | `https://agent-backend.example.com` |
+| `AGENT_PORTAL_ENDPOINT` | 请求路径 | `/agent/invoke` |
+| `AGENT_PORTAL_METHOD` | HTTP 方法 | `POST` |
+| `AGENT_PORTAL_USE_MOCK` | 是否启用模拟响应 | `false` |
+| `AGENT_PORTAL_API_KEY` | 鉴权令牌 | `sk-***` |
+| `AGENT_PORTAL_TEMPERATURE` | 温度参数 | `0.7` |
+| `AGENT_PORTAL_EXTRA_HEADERS` | 额外请求头（JSON） | `{ "X-Tenant": "demo" }` |
+| `AGENT_PORTAL_SYSTEM_PROMPT` | 系统提示词 | `你是一个企业助手` |
+
+### Docker 镜像
+
+使用项目自带的 `Dockerfile` 构建并运行容器：
+
+```bash
+docker build -t agent-portal:latest .
+docker run -it --rm -p 8501:8501 \
+  -e AGENT_PORTAL_BASE_URL="https://agent-backend.example.com" \
+  -e AGENT_PORTAL_USE_MOCK=false \
+  agent-portal:latest
+```
+
+容器默认在 `8501` 端口暴露 Streamlit 服务，可通过 `STREAMLIT_SERVER_PORT` 环境变量覆盖。
+
+### Kubernetes 示例
+
+`deploy/k8s/agent-portal.yaml` 提供了一个最小化的 `Deployment` + `Service` 样例，执行以下命令即可部署到集群：
+
+```bash
+kubectl apply -f deploy/k8s/agent-portal.yaml
+```
 
 欢迎根据业务需求继续扩展 UI、状态管理或引入框架。
 
