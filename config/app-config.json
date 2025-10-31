@@ -1,0 +1,10 @@
+{
+  "baseUrl": "",
+  "endpoint": "/agent/invoke",
+  "method": "POST",
+  "mock": true,
+  "apiKey": "",
+  "temperature": 0.7,
+  "extraHeaders": {},
+  "systemPrompt": "你是一个专业且可靠的智能助手，注意精炼回答，并在需要时引用上传的资料。"
+}
