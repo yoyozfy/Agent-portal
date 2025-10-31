@@ -117,8 +117,8 @@ body {
 }
 
 .layout {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
 }
 
@@ -517,7 +517,7 @@ button.ghost {
   }
 
   .layout {
-    grid-template-columns: 1fr;
+    gap: 1.2rem;
   }
 
   .panel {
